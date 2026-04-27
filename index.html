@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      /* 오뮤 다예쁨체 웹폰트 적용 */
+      @font-face {
+        font-family: 'OmumuDayeppeum';
+        src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/OmumuDayeppeum.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      body {
+        font-family: 'OmumuDayeppeum', cursive;
+        background-color: #fff5f7;
+        color: #d63384;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        padding: 30px;
+        border-radius: 30px;
+        box-shadow: 0 12px 30px rgba(255, 133, 162, 0.2);
+        border: 2px solid #ffc1cf;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      h2 {
+        margin-top: 0;
+        color: #ff4d6d;
+        font-size: 28px;
+        margin-bottom: 25px;
+      }
+
+      .input-group {
+        text-align: left;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        font-size: 18px;
+        color: #f06292;
+      }
+
+      input[type="text"], select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #ffe3e8;
+        border-radius: 15px;
+        font-family: 'OmumuDayeppeum';
+        font-size: 17px;
+        box-sizing: border-box;
+        outline: none;
+        background-color: #fffafb;
+        transition: all 0.3s ease;
+      }
+
+      input:focus, select:focus {
+        border-color: #ff85a2;
+        background-color: #ffffff;
+        box-shadow: 0 0 8px rgba(255, 133, 162, 0.1);
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 15px;
+        margin: 15px 0;
+        justify-content: center;
+      }
+
+      .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 17px;
+      }
+
+      button {
+        width: 100%;
+        padding: 16px;
+        background-color: #ff758f;
+        color: white;
+        border: none;
+        border-radius: 15px;
+        font-family: 'OmumuDayeppeum';
+        font-size: 22px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        box-shadow: 0 4px 10px rgba(255, 117, 143, 0.3);
+      }
+
+      button:hover {
+        background-color: #ff4d6d;
+        transform: translateY(-2px);
+      }
+
+      button:disabled {
+        background-color: #ffccd5;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      #status {
+        display: none;
+        margin-top: 20px;
+        font-size: 15px;
+        color: #ff85a2;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <h2>MBTI 핑크 분석기 🎀</h2>
+      
+      <div class="input-group">
+        <label>성함</label>
+        <input type="text" id="userName" placeholder="이름을 입력해주세요">
+      </div>
+      
+      <div class="input-group">
+        <label>나의 MBTI</label>
+        <input type="text" id="userMbti" placeholder="예: ENFP" maxlength="4">
+      </div>
+      
+      <div class="input-group">
+        <label>분석 옵션</label>
+        <div class="radio-group">
+          <label class="radio-item">
+            <input type="radio" name="mode" value="good" checked> 찰떡궁합 💖
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="mode" value="bad"> 상극유형 💔
+          </label>
+        </div>
+      </div>
+      
+      <button id="submitBtn" onclick="submitRequest()">AI 분석 결과 저장하기</button>
+      <div id="status">AI 전문가가 신중하게 분석 중입니다... ✨</div>
+    </div>
+
+    <script>
+      function submitRequest() {
+        const name = document.getElementById('userName').value.trim();
+        const mbti = document.getElementById('userMbti').value.trim();
+        const mode = document.querySelector('input[name="mode"]:checked').value;
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+
+        if (!name || !mbti) {
+          alert("이름과 MBTI를 모두 입력해 주세요! 🎀");
+          return;
+        }
+
+        btn.disabled = true;
+        status.style.display = 'block';
+
+        // Google Apps Script 서버 함수(processMbtiRequest) 호출
+        google.script.run
+          .withSuccessHandler(function(msg) {
+            alert(msg);
+            google.script.host.close();
+          })
+          .withFailureHandler(function(err) {
+            console.error(err);
+            alert("분석에 실패했어요: " + err.message);
+            btn.disabled = false;
+            status.style.display = 'none';
+          })
+          .processMbtiRequest(name, mbti, mode);
+      }
+    </script>
+
+  </body>
+</html>
